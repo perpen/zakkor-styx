@@ -360,10 +360,10 @@ func (m Topen) Fid() uint32 { return guint32(m[7:11]) }
 // The mode field determines the type of I/O, and is checked against the
 // permissions for the file:
 //
-// 	0 (OREAD)    read access
-// 	1 (OWRITE)   write access
-// 	2 (ORDWR)    read and write access
-// 	3 (OEXEC)    execute access
+//	0 (OREAD)    read access
+//	1 (OWRITE)   write access
+//	2 (ORDWR)    read and write access
+//	3 (OEXEC)    execute access
 //
 // If mode has the OTRUNC (0x10) bit set, the file is to be
 // truncated, which requires write permission (if the file is append-only,

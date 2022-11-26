@@ -99,7 +99,8 @@ func openFlag(mode uint8) int {
 	if mode&styxproto.ORDWR != 0 {
 		flag = os.O_RDWR
 	}
-	if mode&styxproto.OEXEC != 0 {
+	// FIXME perpen bugfix
+	if mode&styxproto.OEXEC == styxproto.OEXEC {
 		flag = os.O_RDONLY
 	}
 	if mode&styxproto.OTRUNC != 0 {
@@ -175,7 +176,7 @@ func (s *Session) handleTwalk(ctx context.Context, msg styxproto.Twalk, file fil
 	if newfid != msg.Fid() {
 		if _, ok := s.conn.sessionFid.Get(newfid); ok {
 			s.conn.clearTag(msg.Tag())
-			s.conn.Rerror(msg.Tag(), "Twalk: fid %x already in use", newfid)
+			s.conn.Rerror(msg.Tag(), "Twalk: fid %d already in use", newfid)
 			s.conn.Flush()
 			return true
 		}

@@ -16,9 +16,9 @@ import (
 // (though that's not saying much). There are a number of different
 // responses that a server must make:
 //
-// 	- If the file exists: Rwalk with nwname qids
-// 	- If no elements in the path exist: Rerror
-// 	- If at least 1 element in the path exists: Rwalk with n(<nwname) qids
+//   - If the file exists: Rwalk with nwname qids
+//   - If no elements in the path exist: Rerror
+//   - If at least 1 element in the path exists: Rwalk with n(<nwname) qids
 //
 // In addition, walks are relative to another file, so a server must track
 // that as well. The styx package attempts to hide this complexity from the
@@ -34,16 +34,16 @@ import (
 //
 // Thus given the following protocol message (fids replaced with their paths):
 //
-// 	Twalk /usr/share 6 ../include/linux/../../bin
+//	Twalk /usr/share 6 ../include/linux/../../bin
 //
 // The user's program will instead see and respond to, *IN THIS ORDER*
 //
-// 	Twalk /usr
-// 	Twalk /usr/include
-// 	Twalk /usr/include/linux
-// 	Twalk /usr/include
-// 	Twalk /usr
-// 	Twalk /usr/bin
+//	Twalk /usr
+//	Twalk /usr/include
+//	Twalk /usr/include/linux
+//	Twalk /usr/include
+//	Twalk /usr
+//	Twalk /usr/bin
 //
 // The order that the program sees the path in is important, as it allows
 // certain synthetic file systems to create resources "on-demand", as the
@@ -128,9 +128,12 @@ Loop:
 			w.session.conn.Rerror(w.tag, "No such file or directory")
 		}
 	} else {
-		w.session.files.Put(w.newfid, file{name: w.path})
-		w.session.conn.sessionFid.Put(w.newfid, w.session)
-		w.session.IncRef()
+		// FIXME perpen bugfix
+		if len(w.found) == len(w.qids) {
+			w.session.files.Put(w.newfid, file{name: w.path})
+			w.session.conn.sessionFid.Put(w.newfid, w.session)
+			w.session.IncRef()
+		}
 		if err := w.session.conn.Rwalk(w.tag, w.found...); err != nil {
 			panic(err) // should never happen
 		}
@@ -149,9 +152,9 @@ Loop:
 // a single 9P message. The styx package translates such requests into
 // multiple Twalk values, providing the following guarantees:
 //
-// 	- Path() will return a cleaned, absolute path
-// 	- Consecutive, related Twalk requests will differ by at
-// 	  most 1 path element.
+//   - Path() will return a cleaned, absolute path
+//   - Consecutive, related Twalk requests will differ by at
+//     most 1 path element.
 //
 // The default response to a Twalk request is an Rerror message saying
 // "No such file or directory".
