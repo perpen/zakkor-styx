@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net"
 
 	"aqwari.net/net/styx/internal/qidpool"
@@ -134,7 +133,6 @@ func newConn(srv *Server, rwc io.ReadWriteCloser) *conn {
 	}
 	var enc *styxproto.Encoder
 	var dec *styxproto.Decoder
-	srv.TraceLog = log.Default() //FIXME perpen
 	if srv.TraceLog != nil {
 		enc = tracing.Encoder(rwc, func(m styxproto.Msg) {
 			srv.TraceLog.Printf("← %03d %s", m.Tag(), m)
