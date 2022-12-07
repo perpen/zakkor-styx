@@ -191,6 +191,8 @@ func (c *conn) serve() {
 		c.srv.logf("write error: %s", err)
 	}
 	c.srv.logf("closed connection from %s", c.remoteAddr())
+	fmt.Printf("--- pushing to perpenDisconnector\n")
+	perpenDisconnector <- true
 }
 
 func (c *conn) handleMessage(m styxproto.Msg) bool {

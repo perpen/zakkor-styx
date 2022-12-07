@@ -2,6 +2,7 @@ package styx
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net"
 	"time"
 
@@ -75,25 +76,24 @@ type Server struct {
 // In practice, a Handler is usually composed of a for loop and a type switch,
 // like so:
 //
-// 	func (srv *Srv) Serve9P(s *styx.Session) {
-// 		for s.Next() {
-// 			switch msg := s.Request().(type) {
-// 			case styx.Twalk:
-// 				if (srv.exists(msg.Path()) {
-// 					msg.Rwalk(srv.filemode(msg.Path())
-// 				} else {
-// 					msg.Rerror("%s does not exist", msg.Path())
-// 				}
-// 			case styx.Topen:
+//	func (srv *Srv) Serve9P(s *styx.Session) {
+//		for s.Next() {
+//			switch msg := s.Request().(type) {
+//			case styx.Twalk:
+//				if (srv.exists(msg.Path()) {
+//					msg.Rwalk(srv.filemode(msg.Path())
+//				} else {
+//					msg.Rerror("%s does not exist", msg.Path())
+//				}
+//			case styx.Topen:
 //				msg.Ropen(srv.getfile(msg.Path()))
-// 			case styx.Tcreate:
-// 				msg.Rcreate(srv.newfile(msg.Path())
-// 			}
-// 		}
-// 	}
+//			case styx.Tcreate:
+//				msg.Rcreate(srv.newfile(msg.Path())
+//			}
+//		}
+//	}
 //
 // Possible message types are listed in the documentation for the Request type.
-//
 type Handler interface {
 	Serve9P(*Session)
 }
@@ -131,9 +131,16 @@ func (srv *Server) Serve(l net.Listener) error {
 
 		srv.logf("accepted connection from %s", rwc.RemoteAddr())
 		conn := newConn(srv, rwc)
+		go func() {
+			<-perpenDisconnector
+			fmt.Printf("--- message on perpenDisconnector\n")
+			l.Close()
+		}()
 		go conn.serve()
 	}
 }
+
+var perpenDisconnector chan bool
 
 // ListenAndServe listens on the specified TCP address, and then
 // calls Serve with handler to handle requests of incoming
