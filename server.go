@@ -114,6 +114,7 @@ func (srv *Server) Serve(l net.Listener) error {
 	backoff := retry.Exponential(time.Millisecond * 10).Max(time.Second)
 	try := 0
 
+	fmt.Printf("--- Server.Serve listening on %s\n", l.Addr())
 	srv.logf("listening on %s", l.Addr())
 	for {
 		rwc, err := l.Accept()
@@ -131,10 +132,14 @@ func (srv *Server) Serve(l net.Listener) error {
 
 		srv.logf("accepted connection from %s", rwc.RemoteAddr())
 		conn := newConn(srv, rwc)
+		perpenDisconnector = make(chan bool)
 		go func() {
+			fmt.Printf("--- waiting on perpenDisconnector\n")
 			<-perpenDisconnector
 			fmt.Printf("--- message on perpenDisconnector\n")
-			l.Close()
+			if err := l.Close(); err != nil {
+				fmt.Printf("--- l.Close error: %v\n", err)
+			}
 		}()
 		go conn.serve()
 	}

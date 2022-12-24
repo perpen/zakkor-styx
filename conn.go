@@ -176,6 +176,7 @@ func (c *conn) clearTag(tag uint16) bool {
 
 // runs in its own goroutine, one per connection.
 func (c *conn) serve() {
+	fmt.Printf("--- conn.serve\n")
 	defer c.close()
 
 	if !c.acceptTversion() {
@@ -191,6 +192,7 @@ func (c *conn) serve() {
 		c.srv.logf("write error: %s", err)
 	}
 	c.srv.logf("closed connection from %s", c.remoteAddr())
+	fmt.Printf("--- closed connection from %s\n", c.remoteAddr())
 	fmt.Printf("--- pushing to perpenDisconnector\n")
 	perpenDisconnector <- true
 }
