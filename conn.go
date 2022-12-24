@@ -195,6 +195,7 @@ func (c *conn) serve() {
 	fmt.Printf("--- closed connection from %s\n", c.remoteAddr())
 	fmt.Printf("--- pushing to perpenDisconnector\n")
 	perpenDisconnector <- true
+	fmt.Printf("--- pushed to perpenDisconnector\n")
 }
 
 func (c *conn) handleMessage(m styxproto.Msg) bool {
